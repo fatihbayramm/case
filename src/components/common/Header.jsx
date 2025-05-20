@@ -20,7 +20,7 @@ export default function Header() {
   const toggle = () => setIsOpen(!isOpen);
 
   return (
-    <Navbar color="light" light expand="md" className="shadow-sm">
+    <Navbar color="light" light expand="md" className="shadow-sm" fixed="top">
       <NavbarBrand tag={Link} to="/" className="text-primary fw-bold">
         UserManager
       </NavbarBrand>

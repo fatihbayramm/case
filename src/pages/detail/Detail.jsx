@@ -17,9 +17,9 @@ import {
   TabContent,
   TabPane,
 } from "reactstrap";
-import api from "../utils/api";
+import api from "../../utils/api";
 import classnames from "classnames";
-import { Loading } from "../components/common/Loading";
+import { Loading } from "../../components/common/Loading";
 import "./Detail.css";
 
 export default function Detail() {
