@@ -1,7 +1,8 @@
 import { useState } from "react";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
+import List from "./pages/List";
+import Detail from "./pages/Detail";
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -13,7 +14,8 @@ function App() {
         <Header />
         <main className="flex-grow-1">
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<List />} />
+            <Route path="/user/:id" element={<Detail />} />
           </Routes>
         </main>
         <Footer />
