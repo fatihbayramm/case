@@ -6,7 +6,6 @@ import { routes } from "../../utils/routes";
 import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import { Loading } from "../../components/common/Loading";
 import { dummyJsonService } from "../../service/dummyJsonService";
-//TODO: Silme işlemi eklendi ancak sayfa yenilenince geri geliyor user.
 
 export default function List() {
   const [users, setUsers] = useState([]);
@@ -22,7 +21,6 @@ export default function List() {
         const response = await dummyJsonService.getUsers();
         const apiUsers = response.data.users;
         const localUsers = JSON.parse(localStorage.getItem("localUsers") || "[]");
-        console.log(localUsers);
         setUsers([...apiUsers, ...localUsers]);
       } catch (error) {
         console.error("Kullanıcılar yüklenirken hata oluştu:", error);

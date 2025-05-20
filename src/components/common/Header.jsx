@@ -1,17 +1,5 @@
 import { useState } from "react";
-import {
-  Navbar,
-  NavbarBrand,
-  NavbarToggler,
-  Collapse,
-  Nav,
-  NavItem,
-  NavLink,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-} from "reactstrap";
+import { Navbar, NavbarBrand, NavbarToggler } from "reactstrap";
 import { Link } from "react-router-dom";
 
 export default function Header() {
