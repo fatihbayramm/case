@@ -7,9 +7,6 @@ import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import { Loading } from "../../components/common/Loading";
 import { dummyJsonService } from "../../service/dummyJsonService";
 //TODO: Silme işlemi eklendi ancak sayfa yenilenince geri geliyor user.
-//TODO: HEADER fixed olacak.
-//TODO: Yeni kullanıcı ekleme sayfası eklenecek.
-//TODO: update user
 
 export default function List() {
   const [users, setUsers] = useState([]);
@@ -36,14 +33,12 @@ export default function List() {
     fetchUsers();
   }, []);
 
-  // Sayfalama için kullanıcıları böl
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const filteredUsers = users.filter((user) => !user.isDeleted);
   const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
   const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
-  // Sayfa değiştirme fonksiyonu
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
@@ -58,7 +53,6 @@ export default function List() {
     setIsLoading(true);
     try {
       await dummyJsonService.deleteUser(userId);
-      // localStorage'dan da sil
       const localUsers = JSON.parse(localStorage.getItem("localUsers") || "[]");
       const updatedLocalUsers = localUsers.filter((user) => user.id !== userId);
       localStorage.setItem("localUsers", JSON.stringify(updatedLocalUsers));
@@ -127,7 +121,6 @@ export default function List() {
         </tbody>
       </Table>
 
-      {/* Sayfalama */}
       <div className="d-flex justify-content-center mt-4">
         <Pagination>
           <PaginationItem disabled={currentPage === 1}>

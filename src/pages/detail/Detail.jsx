@@ -24,7 +24,6 @@ import "./Detail.css";
 
 export default function Detail() {
   const { id } = useParams();
-  const [count, setCount] = useState(111111112);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     id: "",
@@ -75,7 +74,6 @@ export default function Detail() {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Tarih formatını düzenleme fonksiyonu
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const [year, month, day] = dateString.split("-").map((num) => num.padStart(2, "0"));
@@ -85,7 +83,7 @@ export default function Detail() {
   useEffect(() => {
     if (!id) {
       setFormData({
-        id: count,
+        id: Date.now(),
         firstName: "",
         lastName: "",
         age: "",
@@ -134,6 +132,12 @@ export default function Detail() {
     }
     const fetchUser = async () => {
       try {
+        const localUsers = JSON.parse(localStorage.getItem("localUsers") || "[]");
+        const localUser = localUsers.find((u) => String(u.id) === String(id));
+        if (localUser) {
+          setFormData(localUser);
+          setIsLoading(false);
+        }
         setIsLoading(true);
         const response = await dummyJsonService.getUser(id);
         const formattedUser = {
@@ -160,7 +164,7 @@ export default function Detail() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    // Nested field desteği
+
     if (name.includes(".")) {
       const [parent, child, subchild] = name.split(".");
       setFormData((prev) => {
@@ -200,13 +204,13 @@ export default function Detail() {
       if (id) {
         await dummyJsonService.updateUser(id, formData);
       } else {
-        const newUser = { ...formData, id: count };
+        const localUsers = JSON.parse(localStorage.getItem("localUsers") || "[]");
+        const maxId = localUsers.length > 0 ? Math.max(...localUsers.map((u) => Number(u.id) || 0)) : 5400;
+        const newUser = { ...formData, id: maxId + 1 };
         await dummyJsonService.createUser(newUser);
-        setCount(count + 1);
-        navigate("/"); // Listeye dön
+        navigate("/");
       }
       setIsEditing(false);
-      // Yeni kullanıcıyı localStorage'a ekle
       const localUsers = JSON.parse(localStorage.getItem("localUsers") || "[]");
       localUsers.push(formData);
       localStorage.setItem("localUsers", JSON.stringify(localUsers));
@@ -260,12 +264,14 @@ export default function Detail() {
           <Row>
             <Col md={3} className="mb-4 mb-md-0">
               <div className="text-center">
-                <img
-                  src={formData.image}
-                  alt={`${formData.firstName} ${formData.lastName}`}
-                  className="img-fluid rounded-circle mb-3"
-                  style={{ width: "200px", height: "200px", objectFit: "cover" }}
-                />
+                {formData.image && (
+                  <img
+                    src={formData.image}
+                    alt={`${formData.firstName} ${formData.lastName}`}
+                    className="img-fluid rounded-circle mb-3"
+                    style={{ width: "200px", height: "200px", objectFit: "cover" }}
+                  />
+                )}
                 <h4 className="mb-1">{`${formData.firstName} ${formData.lastName}`}</h4>
                 <p className="text-muted mb-0">{formData.company.title}</p>
               </div>
