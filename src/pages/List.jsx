@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { Container, Table, Pagination, PaginationItem, PaginationLink, Button, Row, Col } from "reactstrap";
-import { get } from "../utils/api";
+import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import { generatePath } from "../utils/routes";
 import { routes } from "../utils/routes";
 import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 
 //TODO: Silme işlemi daha sonra eklenecek
+//TODO: HEADER fixed olacak.
 export default function List() {
   const [users, setUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -16,7 +17,8 @@ export default function List() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await get("/users");
+        const response = await api.get("/users");
+        console.log(response.data);
         setUsers(response.data.users);
       } catch (error) {
         console.error("Kullanıcılar yüklenirken hata oluştu:", error);
