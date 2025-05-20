@@ -25,7 +25,50 @@ import "./Detail.css";
 export default function Detail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    age: "",
+    birthDate: "",
+    gender: "",
+    eyeColor: "",
+    username: "",
+    bloodGroup: "",
+    height: "",
+    weight: "",
+    university: "",
+    phone: "",
+    email: "",
+    address: {
+      address: "",
+      city: "",
+      state: "",
+      stateCode: "",
+      country: "",
+      postalCode: "",
+    },
+    company: {
+      name: "",
+      department: "",
+      title: "",
+      address: {
+        address: "",
+        city: "",
+        state: "",
+        stateCode: "",
+        country: "",
+        postalCode: "",
+      },
+    },
+    bank: {
+      cardExpire: "",
+      cardNumber: "",
+      cardType: "",
+      currency: "",
+      iban: "",
+    },
+    image: "",
+  });
   const [activeTab, setActiveTab] = useState("1");
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,26 +76,69 @@ export default function Detail() {
   // Tarih formatını düzenleme fonksiyonu
   const formatDate = (dateString) => {
     if (!dateString) return "";
-
-    // Tarih string'ini parçalara ayır
     const [year, month, day] = dateString.split("-").map((num) => num.padStart(2, "0"));
-
-    // YYYY-MM-DD formatında döndür
     return `${year}-${month}-${day}`;
   };
 
   useEffect(() => {
+    if (!id) {
+      setFormData({
+        firstName: "",
+        lastName: "",
+        age: "",
+        birthDate: "",
+        gender: "",
+        eyeColor: "",
+        username: "",
+        bloodGroup: "",
+        height: "",
+        weight: "",
+        university: "",
+        phone: "",
+        email: "",
+        address: {
+          address: "",
+          city: "",
+          state: "",
+          stateCode: "",
+          country: "",
+          postalCode: "",
+        },
+        company: {
+          name: "",
+          department: "",
+          title: "",
+          address: {
+            address: "",
+            city: "",
+            state: "",
+            stateCode: "",
+            country: "",
+            postalCode: "",
+          },
+        },
+        bank: {
+          cardExpire: "",
+          cardNumber: "",
+          cardType: "",
+          currency: "",
+          iban: "",
+        },
+        image: "",
+      });
+      setIsEditing(true);
+      return;
+    }
     const fetchUser = async () => {
       try {
         setIsLoading(true);
         const response = await dummyJsonService.getUser(id);
-        console.log(response.data);
-        // Tarihi formatla
         const formattedUser = {
+          ...formData,
           ...response.data,
           birthDate: formatDate(response.data.birthDate),
         };
-        setUser(formattedUser);
+        setFormData(formattedUser);
         setIsLoading(false);
       } catch (error) {
         console.error("Kullanıcı bilgileri yüklenirken hata oluştu:", error);
@@ -60,6 +146,7 @@ export default function Detail() {
       }
     };
     fetchUser();
+    // eslint-disable-next-line
   }, [id]);
 
   const toggleTab = (tab) => {
@@ -70,20 +157,52 @@ export default function Detail() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setUser((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    // Nested field desteği
+    if (name.includes(".")) {
+      const [parent, child, subchild] = name.split(".");
+      setFormData((prev) => {
+        if (subchild) {
+          return {
+            ...prev,
+            [parent]: {
+              ...prev[parent],
+              [child]: {
+                ...prev[parent][child],
+                [subchild]: value,
+              },
+            },
+          };
+        } else {
+          return {
+            ...prev,
+            [parent]: {
+              ...prev[parent],
+              [child]: value,
+            },
+          };
+        }
+      });
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setIsLoading(true);
-      await dummyJsonService.updateUser(id, user);
+      if (id) {
+        await dummyJsonService.updateUser(id, formData);
+      } else {
+        await dummyJsonService.createUser(formData);
+        navigate("/"); // Listeye dön
+      }
       setIsEditing(false);
     } catch (error) {
-      console.error("Kullanıcı güncellenirken hata oluştu:", error);
+      console.error("Kullanıcı güncellenirken/eklenirken hata oluştu:", error);
     } finally {
       setIsLoading(false);
     }
@@ -93,7 +212,7 @@ export default function Detail() {
     return <Loading />;
   }
 
-  if (!user) {
+  if (!formData) {
     return (
       <Container className="py-5">
         <div className="alert alert-danger" role="alert">
@@ -133,13 +252,13 @@ export default function Detail() {
             <Col md={3} className="mb-4 mb-md-0">
               <div className="text-center">
                 <img
-                  src={user.image}
-                  alt={`${user.firstName} ${user.lastName}`}
+                  src={formData.image}
+                  alt={`${formData.firstName} ${formData.lastName}`}
                   className="img-fluid rounded-circle mb-3"
                   style={{ width: "200px", height: "200px", objectFit: "cover" }}
                 />
-                <h4 className="mb-1">{`${user.firstName} ${user.lastName}`}</h4>
-                <p className="text-muted mb-0">{user.company.title}</p>
+                <h4 className="mb-1">{`${formData.firstName} ${formData.lastName}`}</h4>
+                <p className="text-muted mb-0">{formData.company.title}</p>
               </div>
             </Col>
             <Col md={9}>
@@ -176,7 +295,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="firstName"
-                            value={user.firstName}
+                            value={formData.firstName}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -188,7 +307,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="lastName"
-                            value={user.lastName}
+                            value={formData.lastName}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -202,7 +321,7 @@ export default function Detail() {
                           <Input
                             type="number"
                             name="age"
-                            value={user.age}
+                            value={formData.age}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -214,7 +333,7 @@ export default function Detail() {
                           <Input
                             type="date"
                             name="birthDate"
-                            value={user.birthDate}
+                            value={formData.birthDate}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -228,7 +347,7 @@ export default function Detail() {
                           <Input
                             type="select"
                             name="gender"
-                            value={user.gender}
+                            value={formData.gender}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           >
@@ -243,7 +362,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="eyeColor"
-                            value={user.eyeColor}
+                            value={formData.eyeColor}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -257,7 +376,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="username"
-                            value={user.username}
+                            value={formData.username}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -269,7 +388,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="bloodGroup"
-                            value={user.bloodGroup}
+                            value={formData.bloodGroup}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -283,7 +402,7 @@ export default function Detail() {
                           <Input
                             type="number"
                             name="height"
-                            value={user.height}
+                            value={formData.height}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -295,7 +414,7 @@ export default function Detail() {
                           <Input
                             type="number"
                             name="weight"
-                            value={user.weight}
+                            value={formData.weight}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -309,7 +428,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="university"
-                            value={user.university}
+                            value={formData.university}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -328,7 +447,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="phone"
-                            value={user.phone}
+                            value={formData.phone}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -340,7 +459,7 @@ export default function Detail() {
                           <Input
                             type="email"
                             name="email"
-                            value={user.email}
+                            value={formData.email}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -354,7 +473,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="address.address"
-                            value={user.address.address}
+                            value={formData.address.address}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -366,7 +485,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="address.city"
-                            value={user.address.city}
+                            value={formData.address.city}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -380,7 +499,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="address.state"
-                            value={user.address.state}
+                            value={formData.address.state}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -392,7 +511,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="address.stateCode"
-                            value={user.address.stateCode}
+                            value={formData.address.stateCode}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -406,7 +525,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="address.country"
-                            value={user.address.country}
+                            value={formData.address.country}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -418,7 +537,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="address.postalCode"
-                            value={user.address.postalCode}
+                            value={formData.address.postalCode}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -437,7 +556,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="company.name"
-                            value={user.company.name}
+                            value={formData.company.name}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -449,7 +568,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="company.department"
-                            value={user.company.department}
+                            value={formData.company.department}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -463,7 +582,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="company.title"
-                            value={user.company.title}
+                            value={formData.company.title}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -475,7 +594,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="company.address.address"
-                            value={user.company.address.address}
+                            value={formData.company.address.address}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -489,7 +608,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="company.address.city"
-                            value={user.company.address.city}
+                            value={formData.company.address.city}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -501,7 +620,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="company.address.country"
-                            value={user.company.address.country}
+                            value={formData.company.address.country}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -515,7 +634,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="company.address.postalCode"
-                            value={user.company.address.postalCode}
+                            value={formData.company.address.postalCode}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -527,7 +646,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="company.address.state"
-                            value={user.company.address.state}
+                            value={formData.company.address.state}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -541,7 +660,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="company.address.stateCode"
-                            value={user.company.address.stateCode}
+                            value={formData.company.address.stateCode}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -559,7 +678,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="bank.cardExpire"
-                            value={user.bank.cardExpire}
+                            value={formData.bank.cardExpire}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -571,7 +690,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="bank.cardNumber"
-                            value={user.bank.cardNumber}
+                            value={formData.bank.cardNumber}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -585,7 +704,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="bank.cardType"
-                            value={user.bank.cardType}
+                            value={formData.bank.cardType}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -597,7 +716,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="bank.currency"
-                            value={user.bank.currency}
+                            value={formData.bank.currency}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />
@@ -611,7 +730,7 @@ export default function Detail() {
                           <Input
                             type="text"
                             name="bank.iban"
-                            value={user.bank.iban}
+                            value={formData.bank.iban}
                             onChange={handleInputChange}
                             disabled={!isEditing}
                           />

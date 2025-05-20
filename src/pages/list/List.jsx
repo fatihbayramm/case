@@ -6,8 +6,10 @@ import { routes } from "../../utils/routes";
 import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import { Loading } from "../../components/common/Loading";
 import { dummyJsonService } from "../../service/dummyJsonService";
-//TODO: Silme işlemi daha sonra eklenecek
+//TODO: Silme işlemi eklendi ancak sayfa yenilenince geri geliyor user.
 //TODO: HEADER fixed olacak.
+//TODO: Yeni kullanıcı ekleme sayfası eklenecek.
+//TODO: update user
 
 export default function List() {
   const [users, setUsers] = useState([]);
@@ -35,8 +37,9 @@ export default function List() {
   // Sayfalama için kullanıcıları böl
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
-  const totalPages = Math.ceil(users.length / usersPerPage);
+  const filteredUsers = users.filter((user) => !user.isDeleted);
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
   // Sayfa değiştirme fonksiyonu
   const handlePageChange = (pageNumber) => {
@@ -92,31 +95,29 @@ export default function List() {
           </tr>
         </thead>
         <tbody>
-          {users
-            .filter((user) => !user.isDeleted)
-            .map((user) => (
-              <tr
-                key={user.id}
-                onClick={() => navigate(generatePath(routes.DETAIL, { id: user.id }))}
-                style={{ cursor: "pointer" }}
-              >
-                <td>{user.firstName}</td>
-                <td>{user.lastName}</td>
-                <td>{user.age}</td>
-                <td>{user.email}</td>
-                <td>{user.gender == "male" ? "Erkek" : "Kadın"}</td>
-                <td>
-                  <div className="d-flex gap-2">
-                    <button className="btn btn-sm btn-outline-primary" onClick={(e) => handleEdit(e, user.id)}>
-                      <FaEdit />
-                    </button>
-                    <button className="btn btn-sm btn-outline-danger" onClick={(e) => handleDelete(e, user.id)}>
-                      <FaTrash />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+          {currentUsers.map((user) => (
+            <tr
+              key={user.id}
+              onClick={() => navigate(generatePath(routes.DETAIL, { id: user.id }))}
+              style={{ cursor: "pointer" }}
+            >
+              <td>{user.firstName}</td>
+              <td>{user.lastName}</td>
+              <td>{user.age}</td>
+              <td>{user.email}</td>
+              <td>{user.gender == "male" ? "Erkek" : "Kadın"}</td>
+              <td>
+                <div className="d-flex gap-2">
+                  <button className="btn btn-sm btn-outline-primary" onClick={(e) => handleEdit(e, user.id)}>
+                    <FaEdit />
+                  </button>
+                  <button className="btn btn-sm btn-outline-danger" onClick={(e) => handleDelete(e, user.id)}>
+                    <FaTrash />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
         </tbody>
       </Table>
 

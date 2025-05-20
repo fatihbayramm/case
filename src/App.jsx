@@ -16,6 +16,7 @@ function App() {
           <Routes>
             <Route path="/" element={<List />} />
             <Route path="/user/:id" element={<Detail />} />
+            <Route path="/new-user" element={<Detail />} />
           </Routes>
         </main>
         <Footer />
