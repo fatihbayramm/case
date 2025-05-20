@@ -17,7 +17,7 @@ import {
   TabContent,
   TabPane,
 } from "reactstrap";
-import api from "../../utils/api";
+import { dummyJsonService } from "../../service/dummyJsonService";
 import classnames from "classnames";
 import { Loading } from "../../components/common/Loading";
 import "./Detail.css";
@@ -45,7 +45,7 @@ export default function Detail() {
     const fetchUser = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get(`/users/${id}`);
+        const response = await dummyJsonService.getUser(id);
         console.log(response.data);
         // Tarihi formatla
         const formattedUser = {
@@ -80,7 +80,7 @@ export default function Detail() {
     e.preventDefault();
     try {
       setIsLoading(true);
-      await api.put(`/users/${id}`, user);
+      await dummyJsonService.updateUser(id, user);
       setIsEditing(false);
     } catch (error) {
       console.error("Kullanıcı güncellenirken hata oluştu:", error);

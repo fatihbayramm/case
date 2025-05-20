@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Container, Table, Pagination, PaginationItem, PaginationLink, Button, Row, Col } from "reactstrap";
-import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
-import { generatePath } from "../utils/routes";
-import { routes } from "../utils/routes";
+import { generatePath } from "../../utils/routes";
+import { routes } from "../../utils/routes";
 import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
-import { Loading } from "../components/common/Loading";
+import { Loading } from "../../components/common/Loading";
+import { dummyJsonService } from "../../service/dummyJsonService";
 //TODO: Silme işlemi daha sonra eklenecek
 //TODO: HEADER fixed olacak.
 
@@ -20,7 +20,7 @@ export default function List() {
     const fetchUsers = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get("/users");
+        const response = await dummyJsonService.getUsers();
         console.log(response.data);
         setUsers(response.data.users);
       } catch (error) {
@@ -48,12 +48,17 @@ export default function List() {
     navigate(generatePath(routes.DETAIL, { id: userId }));
   };
 
-  const handleDelete = (e, userId) => {
+  const handleDelete = async (e, userId) => {
     setIsLoading(true);
-    e.stopPropagation(); // Satır tıklamasını engelle
-    // Silme işlemi daha sonra eklenecek
-    console.log("Silme işlemi:", userId);
-    setIsLoading(false);
+    e.stopPropagation();
+    try {
+      await dummyJsonService.deleteUser(userId);
+      setUsers(users.filter((user) => user.id !== userId));
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Kullanıcı silinirken hata oluştu:", error);
+      setIsLoading(false);
+    }
   };
 
   if (isLoading) {
@@ -87,29 +92,31 @@ export default function List() {
           </tr>
         </thead>
         <tbody>
-          {currentUsers.map((user) => (
-            <tr
-              key={user.id}
-              onClick={() => navigate(generatePath(routes.DETAIL, { id: user.id }))}
-              style={{ cursor: "pointer" }}
-            >
-              <td>{user.firstName}</td>
-              <td>{user.lastName}</td>
-              <td>{user.age}</td>
-              <td>{user.email}</td>
-              <td>{user.gender == "male" ? "Erkek" : "Kadın"}</td>
-              <td>
-                <div className="d-flex gap-2">
-                  <button className="btn btn-sm btn-outline-primary" onClick={(e) => handleEdit(e, user.id)}>
-                    <FaEdit />
-                  </button>
-                  <button className="btn btn-sm btn-outline-danger" onClick={(e) => handleDelete(e, user.id)}>
-                    <FaTrash />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
+          {users
+            .filter((user) => !user.isDeleted)
+            .map((user) => (
+              <tr
+                key={user.id}
+                onClick={() => navigate(generatePath(routes.DETAIL, { id: user.id }))}
+                style={{ cursor: "pointer" }}
+              >
+                <td>{user.firstName}</td>
+                <td>{user.lastName}</td>
+                <td>{user.age}</td>
+                <td>{user.email}</td>
+                <td>{user.gender == "male" ? "Erkek" : "Kadın"}</td>
+                <td>
+                  <div className="d-flex gap-2">
+                    <button className="btn btn-sm btn-outline-primary" onClick={(e) => handleEdit(e, user.id)}>
+                      <FaEdit />
+                    </button>
+                    <button className="btn btn-sm btn-outline-danger" onClick={(e) => handleDelete(e, user.id)}>
+                      <FaTrash />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
         </tbody>
       </Table>
 
