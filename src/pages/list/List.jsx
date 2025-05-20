@@ -20,11 +20,13 @@ export default function List() {
 
   useEffect(() => {
     const fetchUsers = async () => {
+      setIsLoading(true);
       try {
-        setIsLoading(true);
         const response = await dummyJsonService.getUsers();
-        console.log(response.data);
-        setUsers(response.data.users);
+        const apiUsers = response.data.users;
+        const localUsers = JSON.parse(localStorage.getItem("localUsers") || "[]");
+        console.log(localUsers);
+        setUsers([...apiUsers, ...localUsers]);
       } catch (error) {
         console.error("Kullanıcılar yüklenirken hata oluştu:", error);
       } finally {
@@ -47,19 +49,23 @@ export default function List() {
   };
 
   const handleEdit = (e, userId) => {
-    e.stopPropagation(); // Satır tıklamasını engelle
+    e.stopPropagation();
     navigate(generatePath(routes.DETAIL, { id: userId }));
   };
 
   const handleDelete = async (e, userId) => {
-    setIsLoading(true);
     e.stopPropagation();
+    setIsLoading(true);
     try {
       await dummyJsonService.deleteUser(userId);
+      // localStorage'dan da sil
+      const localUsers = JSON.parse(localStorage.getItem("localUsers") || "[]");
+      const updatedLocalUsers = localUsers.filter((user) => user.id !== userId);
+      localStorage.setItem("localUsers", JSON.stringify(updatedLocalUsers));
       setUsers(users.filter((user) => user.id !== userId));
-      setIsLoading(false);
     } catch (error) {
       console.error("Kullanıcı silinirken hata oluştu:", error);
+    } finally {
       setIsLoading(false);
     }
   };

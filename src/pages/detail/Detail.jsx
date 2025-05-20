@@ -24,8 +24,10 @@ import "./Detail.css";
 
 export default function Detail() {
   const { id } = useParams();
+  const [count, setCount] = useState(111111112);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
+    id: "",
     firstName: "",
     lastName: "",
     age: "",
@@ -83,6 +85,7 @@ export default function Detail() {
   useEffect(() => {
     if (!id) {
       setFormData({
+        id: count,
         firstName: "",
         lastName: "",
         age: "",
@@ -197,10 +200,16 @@ export default function Detail() {
       if (id) {
         await dummyJsonService.updateUser(id, formData);
       } else {
-        await dummyJsonService.createUser(formData);
+        const newUser = { ...formData, id: count };
+        await dummyJsonService.createUser(newUser);
+        setCount(count + 1);
         navigate("/"); // Listeye dön
       }
       setIsEditing(false);
+      // Yeni kullanıcıyı localStorage'a ekle
+      const localUsers = JSON.parse(localStorage.getItem("localUsers") || "[]");
+      localUsers.push(formData);
+      localStorage.setItem("localUsers", JSON.stringify(localUsers));
     } catch (error) {
       console.error("Kullanıcı güncellenirken/eklenirken hata oluştu:", error);
     } finally {
