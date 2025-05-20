@@ -19,13 +19,14 @@ import {
 } from "reactstrap";
 import api from "../utils/api";
 import classnames from "classnames";
-
+import { Loading } from "../components/common/Loading";
 export default function Detail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("1");
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Tarih formatını düzenleme fonksiyonu
   const formatDate = (dateString) => {
@@ -41,6 +42,7 @@ export default function Detail() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
+        setIsLoading(true);
         const response = await api.get(`/users/${id}`);
         console.log(response.data);
         // Tarihi formatla
@@ -49,8 +51,10 @@ export default function Detail() {
           birthDate: formatDate(response.data.birthDate),
         };
         setUser(formattedUser);
+        setIsLoading(false);
       } catch (error) {
         console.error("Kullanıcı bilgileri yüklenirken hata oluştu:", error);
+        setIsLoading(false);
       }
     };
     fetchUser();
@@ -73,14 +77,29 @@ export default function Detail() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsLoading(true);
       await api.put(`/users/${id}`, user);
       setIsEditing(false);
     } catch (error) {
       console.error("Kullanıcı güncellenirken hata oluştu:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  if (!user) return <div>Yükleniyor...</div>;
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (!user) {
+    return (
+      <Container className="py-5">
+        <div className="alert alert-danger" role="alert">
+          Kullanıcı bilgileri yüklenemedi. Lütfen daha sonra tekrar deneyin.
+        </div>
+      </Container>
+    );
+  }
 
   return (
     <Container className="py-5">

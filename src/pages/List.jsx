@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { generatePath } from "../utils/routes";
 import { routes } from "../utils/routes";
 import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
-
+import { Loading } from "../components/common/Loading";
 //TODO: Silme işlemi daha sonra eklenecek
 //TODO: HEADER fixed olacak.
 //TODO: mobilde tableri duzelt detay sayfasinda.
@@ -15,15 +15,19 @@ export default function List() {
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 10;
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
+        setIsLoading(true);
         const response = await api.get("/users");
         console.log(response.data);
         setUsers(response.data.users);
       } catch (error) {
         console.error("Kullanıcılar yüklenirken hata oluştu:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchUsers();
@@ -46,10 +50,16 @@ export default function List() {
   };
 
   const handleDelete = (e, userId) => {
+    setIsLoading(true);
     e.stopPropagation(); // Satır tıklamasını engelle
     // Silme işlemi daha sonra eklenecek
     console.log("Silme işlemi:", userId);
+    setIsLoading(false);
   };
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <Container className="py-5">
