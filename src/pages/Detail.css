@@ -1,0 +1,13 @@
+@media (max-width: 767.98px) {
+  .scrollable-tabs {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+  .scrollable-tabs .nav-item {
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+}

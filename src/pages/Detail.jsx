@@ -20,6 +20,8 @@ import {
 import api from "../utils/api";
 import classnames from "classnames";
 import { Loading } from "../components/common/Loading";
+import "./Detail.css";
+
 export default function Detail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -141,7 +143,7 @@ export default function Detail() {
               </div>
             </Col>
             <Col md={9}>
-              <Nav tabs className="mb-4">
+              <Nav tabs className="mb-4 scrollable-tabs">
                 <NavItem style={{ cursor: "pointer" }}>
                   <NavLink className={classnames({ active: activeTab === "1" })} onClick={() => toggleTab("1")}>
                     Kişisel Bilgiler

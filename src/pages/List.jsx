@@ -8,8 +8,7 @@ import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import { Loading } from "../components/common/Loading";
 //TODO: Silme işlemi daha sonra eklenecek
 //TODO: HEADER fixed olacak.
-//TODO: mobilde tableri duzelt detay sayfasinda.
-// TODO: Loading animasyonu ?
+
 export default function List() {
   const [users, setUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
