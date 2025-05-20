@@ -1,13 +1,44 @@
-# React + Vite
+# User Management React App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Bu proje, kullanıcı yönetimi için geliştirilmiş modern bir React uygulamasıdır. Kullanıcılar listelenebilir, eklenebilir, düzenlenebilir ve silinebilir. Uygulama, hem sahte bir API (dummyjson.com) hem de localStorage ile çalışır.
 
-Currently, two official plugins are available:
+## Kullanılan Teknolojiler
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React** (Vite ile hızlı geliştirme)
+- **React Router** (Sayfa yönlendirme)
+- **Reactstrap & Bootstrap** (Modern ve responsive arayüz)
+- **Axios** (API istekleri için)
+- **LocalStorage** (Yeni eklenen kullanıcıların kalıcı olarak saklanması)
+- **react-icons** (İkonlar için)
 
-## Expanding the ESLint configuration
+## Temel Özellikler
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-# case
+- Kullanıcıları listeleme (API ve localStorage birleştirilmiş şekilde)
+- Kullanıcı ekleme (form ile, localStorage'a kaydedilir)
+- Kullanıcı düzenleme (API'deki veya localStorage'daki kullanıcılar)
+- Kullanıcı silme (API ve localStorage'dan silme desteği)
+- Detay sayfası (tab yapısı ile kişisel, iletişim, şirket ve banka bilgileri)
+- Responsive ve sabit header
+- Sayfalama (pagination)
+
+## Kurulum ve Çalıştırma
+
+1. Bağımlılıkları yükleyin:
+   ```bash
+   npm install
+   ```
+2. Geliştirme sunucusunu başlatın:
+   ```bash
+   npm run dev
+   ```
+3. Uygulamayı tarayıcıda açın: [http://localhost:5173](http://localhost:5173)
+
+## Notlar
+
+- Yeni eklenen kullanıcılar sadece localStorage'da saklanır, API'ye yazılmaz.
+- Detay sayfası, önce localStorage'da kullanıcıyı arar, bulamazsa API'den çeker.
+- Silme ve güncelleme işlemleri hem API hem localStorage üzerinde çalışır.
+
+---
+
+Kısa, modern ve teknik olarak güncel bir kullanıcı yönetim paneli örneğidir.
